@@ -1,0 +1,60 @@
+---
+title: "Binary Diabetes Health Trend Analysis"
+author: "Unnati Agrawal"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(janitor)
+
+## 📂 1. Load and Clean the Data
+
+```{r load-and-clean}
+# Load dataset from file
+df <- read_csv("data/diabetes_binary_5050split_health_indicators_BRFSS2015.csv")
+
+# Clean column names
+df <- df %>% clean_names()
+
+# Convert diabetes_binary to factor for plotting & modeling
+df$diabetes_binary <- as.factor(df$diabetes_binary)
+
+# View the structure
+glimpse(df)
+
+
+```{r exploratory data analysis}
+df <- read_csv("outputs/cleaned_diabetes_data.csv")
+df$diabetes_binary <- as.factor(df$diabetes_binary)
+
+
+# BMI distribution
+ggplot(df, aes(x = bmi, fill = diabetes_binary)) +
+  geom_histogram(position = "identity", alpha = 0.6, bins = 30) +
+  labs(title = "BMI Distribution by Diabetes Status") +
+  theme_minimal()
+
+ggsave("plots/bmi_by_diabetes.png")
+
+# General health vs diabetes
+df %>%
+  group_by(gen_hlth, diabetes_binary) %>%
+  summarize(count = n()) %>%
+  ggplot(aes(x = gen_hlth, y = count, fill = diabetes_binary)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "General Health by Diabetes Status", x = "General Health") +
+  theme_minimal()
+
+ggsave("plots/gen_health_by_diabetes.png")
+
+```{r logistic regression model}
+df <- read_csv("outputs/cleaned_diabetes_data.csv")
+
+# Fit a logistic regression
+model <- glm(diabetes_binary ~ bmi + high_bp + gen_hlth + age + phys_activity,
+             data = df, family = binomial)
+
+# Summary of the model
+summary(model)

@@ -1,0 +1,51 @@
+---
+title: "Multiclass Diabetes Health Trend Analysis"
+author: "Unnati Agrawal"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+library(tidyverse)
+library(janitor)
+library(nnet)
+ 
+```{r load and clean data}
+# Load dataset
+df1 <- read_csv("data/diabetes_012_health_indicators_BRFSS2015.csv") %>% clean_names()
+
+# Convert target to factor
+df1$diabetes_012 <- as.factor(df1$diabetes_012)
+
+# Preview structure
+glimpse(df1)
+
+```{r eda}
+df1 %>%
+  count(diabetes_012) %>%
+  mutate(prop = n / sum(n)) %>%
+  ggplot(aes(x = diabetes_012, y = prop, fill = diabetes_012)) +
+  geom_col() +
+  scale_y_continuous(labels = scales::percent_format()) +
+  labs(title = "Diabetes Class Proportions (0 = No, 1 = Pre, 2 = Diabetes)", y = "Proportion") +
+  theme_minimal()
+ 
+ggplot(df1, aes(x = bmi, fill = diabetes_012)) +
+  geom_histogram(position = "identity", bins = 30, alpha = 0.6) +
+  labs(title = "BMI Distribution by Diabetes Status", x = "BMI", y = "Count") +
+  theme_minimal()
+
+```{r multinomial logistic regression}
+# Fit multinomial logistic regression
+model1 <- multinom(diabetes_012 ~ bmi + high_bp + gen_hlth + age + phys_activity, data = df1)
+
+# Model summary
+summary(model1)
+
+# Compute z-values and p-values
+z <- summary(model1)$coefficients / summary(model1)$standard.errors
+p <- (1 - pnorm(abs(z), 0, 1)) * 2
+round(p, 5)
+

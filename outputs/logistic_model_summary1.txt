@@ -1,0 +1,16 @@
+Call:
+multinom(formula = diabetes_012 ~ bmi + high_bp + gen_hlth + 
+    age + phys_activity, data = df1)
+
+Coefficients:
+  (Intercept)        bmi   high_bp  gen_hlth       age phys_activity
+1   -7.711998 0.05255239 0.5143905 0.3883636 0.1290761   -0.05738629
+2   -7.329775 0.06516270 0.9341632 0.6110618 0.1584233   -0.06554704
+
+Std. Errors:
+  (Intercept)         bmi    high_bp    gen_hlth         age phys_activity
+1  0.10018280 0.001951888 0.03303109 0.014861471 0.005910925    0.03348970
+2  0.04617873 0.000887541 0.01439219 0.006352005 0.002575739    0.01393661
+
+Residual Deviance: 208024.8 
+AIC: 208048.8 
